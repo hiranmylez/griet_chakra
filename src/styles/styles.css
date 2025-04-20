@@ -1,0 +1,36 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  button {
+    border-radius: 5px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  button:hover {
+    opacity: 0.8;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .container {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
