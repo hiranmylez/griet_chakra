@@ -2,65 +2,39 @@ body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  background-image: url('./background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: white;
-  text-align: center;
-}
-
-.header {
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 15px 40px;
-  background: rgba(0, 0, 0, 0.3);
-  position: fixed;
-  width: 100%;
-  top: 0;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #ffffff;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
-}
-
-
-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-}
-
-nav ul li a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.hero {
-  margin-top: 150px;
+  justify-content: center;
+  text-align: center;
 }
 
 .title {
   font-size: 50px;
   font-weight: bold;
+  margin-bottom: 30px;
 }
 
-.subtitle {
-  font-size: 20px;
-  margin-bottom: 20px;
+/* Center buttons and add tab-like space */
+.buttons {
+  display: flex;
+  justify-content: center; /* center horizontally */
+  gap: 48px;              /* tab-like space */
+  margin-bottom: 40px;
 }
 
 .buttons button {
-  background: white;
-  color: #1e3c72;
-  padding: 10px 20px;
-  margin: 10px;
-  border: none;
+  padding: 12px 25px;
   font-size: 18px;
+  border: none;
   border-radius: 5px;
+  cursor: pointer;
   transition: 0.3s;
 }
 

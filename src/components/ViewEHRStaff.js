@@ -1,18 +1,15 @@
-
+// src/components/ViewEHRStaff.js
 import React, { useState, useEffect } from "react";
-import { storage, db } from "../firebase/firebase";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "firebase/storage";
+import { db, auth } from "../firebase/firebase";
 import {
   collection,
   addDoc,
   getDocs,
   query,
   where,
-  Timestamp
+  Timestamp,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 
 const ViewEHRStaff = () => {
@@ -21,36 +18,68 @@ const ViewEHRStaff = () => {
   const [fileDescription, setFileDescription] = useState("");
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [accessGranted, setAccessGranted] = useState(false);
+
+  const staffUID = auth.currentUser?.uid;
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
+  const checkPermission = async () => {
+    if (!staffUID || !patientUID) return;
+
+    try {
+      const permissionQuery = query(
+        collection(db, "permissionRequests"),
+        where("staffUID", "==", staffUID),
+        where("patientUID", "==", patientUID),
+        where("status", "==", "approved")
+      );
+      const result = await getDocs(permissionQuery);
+      setAccessGranted(!result.empty);
+    } catch (error) {
+      console.error("Permission check error:", error);
+      alert("Error checking permission.");
+    }
+  };
+
   const handleUpload = async () => {
-    if (!file || !patientUID) {
-      alert("Please select a file and enter a valid patient UID.");
+    if (!file || !patientUID || !accessGranted) {
+      alert("Upload failed. Ensure access is granted and all fields are filled.");
       return;
     }
 
     setLoading(true);
-    const storageRef = ref(storage, `ehr/${patientUID}/${file.name}`);
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-
-      await addDoc(collection(db, "ehr-records"), {
-        uid: patientUID,
-        name: file.name,
-        url: downloadURL,
-        description: fileDescription,
-        timestamp: Timestamp.now()
+      const response = await fetch("http://localhost:8080/niramaya_backend/php/upload.php", {
+        method: "POST",
+        body: formData,
       });
 
-      alert("File uploaded successfully!");
-      setFile(null);
-      setFileDescription("");
-      fetchRecords(); // refresh
+      const result = await response.json();
+
+      if (response.ok && result.filename) {
+        const downloadURL = `http://localhost:8080/niramaya_backend/uploads/${encodeURIComponent(result.filename)}`;
+
+        await addDoc(collection(db, "ehr-records"), {
+          uid: patientUID,
+          name: result.filename,
+          url: downloadURL,
+          description: fileDescription,
+          timestamp: Timestamp.now(),
+        });
+
+        alert("File uploaded successfully!");
+        setFile(null);
+        setFileDescription("");
+        fetchRecords();
+      } else {
+        alert("Upload failed: " + result.message || "Unknown error");
+      }
     } catch (error) {
       console.error("Upload error:", error);
       alert("Upload failed.");
@@ -60,7 +89,7 @@ const ViewEHRStaff = () => {
   };
 
   const fetchRecords = async () => {
-    if (!patientUID) return;
+    if (!patientUID || !accessGranted) return;
     const q = query(collection(db, "ehr-records"), where("uid", "==", patientUID));
     const snapshot = await getDocs(q);
     const fetched = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
@@ -68,7 +97,9 @@ const ViewEHRStaff = () => {
   };
 
   useEffect(() => {
-    if (patientUID) fetchRecords();
+    if (patientUID) {
+      checkPermission();
+    }
   }, [patientUID]);
 
   return (
@@ -83,41 +114,53 @@ const ViewEHRStaff = () => {
         style={{ width: "100%", marginBottom: "10px" }}
       />
 
-      <button onClick={fetchRecords}>🔍 Fetch Patient Records</button>
-
-      <hr />
-
-      <h3>Upload New Record for Patient</h3>
-      <input type="file" onChange={handleFileChange} />
-      <input
-        type="text"
-        placeholder="Enter file description"
-        value={fileDescription}
-        onChange={(e) => setFileDescription(e.target.value)}
-        style={{ width: "100%", marginTop: "10px" }}
-      />
-      <br />
-      <button onClick={handleUpload} disabled={loading}>
-        {loading ? "Uploading..." : "Upload Record"}
+      <button onClick={() => { checkPermission(); fetchRecords(); }}>
+        🔍 Fetch Patient Records
       </button>
 
       <hr />
 
-      <h3>📁 Patient's EHR Records</h3>
-      <ul>
-        {records.map((record) => (
-          <li key={record.id}>
-            <a href={record.url} target="_blank" rel="noreferrer">
-              {record.name}
-            </a>
-            {record.description && <span> - {record.description}</span>}
-          </li>
-        ))}
-      </ul>
+      {!accessGranted ? (
+        <p style={{ color: "red" }}>
+          Access not granted by the patient. Request approval before viewing or uploading files.
+        </p>
+      ) : (
+        <>
+          <h3>Upload New Record for Patient</h3>
+          <input type="file" onChange={handleFileChange} />
+          <input
+            type="text"
+            placeholder="Enter file description"
+            value={fileDescription}
+            onChange={(e) => setFileDescription(e.target.value)}
+            style={{ width: "100%", marginTop: "10px" }}
+          />
+          <br />
+          <button onClick={handleUpload} disabled={loading}>
+            {loading ? "Uploading..." : "Upload Record"}
+          </button>
+
+          <hr />
+
+          <h3>📁 Patient's EHR Records</h3>
+          <ul>
+            {records.map((record) => (
+              <li key={record.id}>
+                <a
+                  href={`http://localhost:8080/niramaya_backend/uploads/${encodeURIComponent(record.name)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {record.name}
+                </a>
+                {record.description && <span> - {record.description}</span>}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 };
 
 export default ViewEHRStaff;
-
-

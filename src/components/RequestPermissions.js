@@ -1,3 +1,4 @@
+// ✅ UPDATED: RequestPermissions.js
 import React, { useState } from "react";
 import { db, auth } from "../firebase/firebase";
 import {
@@ -7,11 +8,14 @@ import {
   getDocs,
   addDoc,
   serverTimestamp,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 
 const RequestPermissions = () => {
   const [searchNumber, setSearchNumber] = useState("");
   const [patientData, setPatientData] = useState(null);
+  const [description, setDescription] = useState("");
   const [requestStatus, setRequestStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +30,7 @@ const RequestPermissions = () => {
 
       if (!snapshot.empty) {
         const doc = snapshot.docs[0];
-        setPatientData({ ...doc.data(), id: doc.id });
+        setPatientData({ ...doc.data(), id: doc.id, uid: doc.data().uid });
         setRequestStatus("");
       } else {
         setPatientData(null);
@@ -41,19 +45,27 @@ const RequestPermissions = () => {
   };
 
   const sendPermissionRequest = async () => {
-    if (!patientData) return;
+    if (!patientData || !description.trim()) {
+      alert("Please enter a valid description.");
+      return;
+    }
     try {
       const staffUID = auth.currentUser?.uid;
-      const patientPhone = patientData.phone;
+      const staffSnap = await getDoc(doc(db, "staffUsers", staffUID));
+      const staffName = staffSnap.exists() ? staffSnap.data().fullName : "Unknown";
 
       await addDoc(collection(db, "permissionRequests"), {
         staffUID,
-        patientPhone,
+        staffName,
+        patientUID: patientData.uid,
+        patientPhone: patientData.phone,
+        description,
         status: "pending",
         timestamp: serverTimestamp(),
       });
 
       setRequestStatus("Permission request sent!");
+      setDescription("");
     } catch (error) {
       console.error("Error sending permission request:", error);
       setRequestStatus("Failed to send request");
@@ -83,10 +95,19 @@ const RequestPermissions = () => {
           <p><strong>Name:</strong> {patientData.fullName}</p>
           <p><strong>Phone:</strong> {patientData.phone}</p>
           <p><strong>Email:</strong> {patientData.email}</p>
+          <p><strong>UID:</strong> {patientData.uid}</p>
+
+          <textarea
+            placeholder="Why do you need access?"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="border p-2 rounded w-full mt-3 mb-3"
+            rows={3}
+          />
 
           <button
             onClick={sendPermissionRequest}
-            className="bg-green-500 text-white px-4 py-2 mt-4 rounded hover:bg-green-600"
+            className="bg-green-500 text-white px-4 py-2 mt-2 rounded hover:bg-green-600"
           >
             Send Request
           </button>
@@ -101,6 +122,3 @@ const RequestPermissions = () => {
 };
 
 export default RequestPermissions;
-
-
-

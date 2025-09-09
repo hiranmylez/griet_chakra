@@ -1,111 +1,116 @@
+// GrantPermissions.js
 import React, { useEffect, useState } from 'react';
 import { db, auth } from '../firebase/firebase';
 import {
-    collection,
-    query,
-    where,
-    getDocs,
-    doc,
-    getDoc,
-    updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
 } from 'firebase/firestore';
 
 const GrantPermissions = () => {
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const fetchRequests = async () => {
-        console.log("fetchRequests function started"); // ADDED LOG
-        const user = auth.currentUser;
-        console.log("Current User UID:", user?.uid); // ADDED LOG - CHECK THIS IN CONSOLE
-        try {
-            if (!user) {
-                console.log("User not logged in, fetchRequests aborted."); // ADDED LOG
-                return;
-            }
+  const fetchRequests = async () => {
+    const user = auth.currentUser;
+    try {
+      if (!user) return;
 
-            const userRef = doc(db, 'patientUsers', user.uid);
-            const userSnap = await getDoc(userRef);
-            if (!userSnap.exists()) {
-                console.log("Patient data not found, fetchRequests aborted."); // ADDED LOG
-                return;
-            }
+      const q = query(
+        collection(db, 'permissionRequests'),
+        where('patientUID', '==', user.uid)
+      );
 
-            const patientPhone = userSnap.data().phone;
-            console.log("Logged-in patient's phone:", patientPhone); // YOUR EXISTING LOG
+      const querySnapshot = await getDocs(q);
+      const requestList = [];
 
-            const q = query(
-                collection(db, 'permissionRequests'),
-                where('patientPhone', '==', patientPhone)
-            );
+      for (const docSnap of querySnapshot.docs) {
+        const data = docSnap.data();
+        const timestamp = data.timestamp?.toDate().toLocaleString() || "N/A";
 
-            const querySnapshot = await getDocs(q);
-            const requestList = [];
+        const staffQuery = query(
+          collection(db, "staffUsers"),
+          where("uid", "==", data.staffUID)
+        );
+        const staffSnap = await getDocs(staffQuery);
 
-            querySnapshot.forEach((docSnap) => {
-                requestList.push({ id: docSnap.id, ...docSnap.data() });
-            });
-
-            setRequests(requestList);
-            setLoading(false);
-            console.log("fetchRequests function completed successfully"); // ADDED LOG
-        } catch (error) {
-            console.error('Error fetching permission requests:', error);
-            setLoading(false);
-            console.log("fetchRequests function encountered an error"); // ADDED LOG
+        let staffName = "Unknown";
+        if (!staffSnap.empty) {
+          staffName = staffSnap.docs[0].data().fullName || "Unknown";
         }
-    };
 
-    useEffect(() => {
-        fetchRequests();
-    }, []);
+        requestList.push({
+          id: docSnap.id,
+          ...data,
+          timestamp,
+          doctorName: staffName,
+        });
+      }
 
-    const handleDecision = async (id, decision) => {
-        try {
-            const requestRef = doc(db, 'permissionRequests', id);
-            await updateDoc(requestRef, { status: decision });
-            fetchRequests(); // Refresh the list after approval/denial
-        } catch (error) {
-            console.error('Error updating request:', error);
-        }
-    };
+      setRequests(requestList);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching permission requests:', error);
+      setLoading(false);
+    }
+  };
 
-    if (loading) return <p>Loading permission requests...</p>;
+  useEffect(() => {
+    fetchRequests();
+  }, []);
 
-    return (
-        <div className="p-6 bg-white rounded shadow max-w-xl mx-auto mt-10">
-            <h2 className="text-2xl font-semibold mb-4">Access Requests</h2>
+  const handleDecision = async (id, decision) => {
+    try {
+      const requestRef = doc(db, 'permissionRequests', id);
+      await updateDoc(requestRef, { status: decision });
+      fetchRequests();
+    } catch (error) {
+      console.error('Error updating request:', error);
+    }
+  };
 
-            {requests.length === 0 ? (
-                <p>No permission requests at the moment.</p>
-            ) : (
-                <ul>
-                    {requests.map((req) => (
-                        <li key={req.id} className="border p-4 mb-3 rounded">
-                            <p><strong>Staff UID:</strong> {req.staffUID}</p>
-                            <p><strong>Status:</strong> {req.status}</p>
-                            {req.status === 'pending' && (
-                                <div className="mt-2">
-                                    <button
-                                        className="bg-green-600 text-white px-3 py-1 rounded mr-2"
-                                        onClick={() => handleDecision(req.id, 'approved')}
-                                    >
-                                        Approve
-                                    </button>
-                                    <button
-                                        className="bg-red-600 text-white px-3 py-1 rounded"
-                                        onClick={() => handleDecision(req.id, 'denied')}
-                                    >
-                                        Deny
-                                    </button>
-                                </div>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            )}
+  if (loading) return <p className="text-center">Loading permission requests...</p>;
+
+  return (
+    <div className="p-6 bg-white rounded shadow max-w-2xl mx-auto mt-10">
+      <h2 className="text-2xl font-semibold mb-6 text-left">Access Requests</h2>
+
+      {requests.length === 0 ? (
+        <p className="text-left">No permission requests at the moment.</p>
+      ) : (
+        <div className="space-y-4">
+          {requests.map((req) => (
+            <div key={req.id} className="border border-gray-300 p-4 rounded-md shadow-sm text-left">
+              <p><strong>Doctor Name:</strong> {req.doctorName}</p>
+              <p><strong>Status:</strong> {req.status}</p>
+              <p><strong>Requested At:</strong> {req.timestamp}</p>
+
+              {req.status === 'pending' && (
+                <div className="mt-3 flex gap-3">
+                  <button
+                    className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+                    onClick={() => handleDecision(req.id, 'approved')}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+                    onClick={() => handleDecision(req.id, 'denied')}
+                  >
+                    Deny
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default GrantPermissions;

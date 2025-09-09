@@ -1,11 +1,15 @@
 .new-landing-container {
   height: 100vh;
+  width: 100vw;
+  background: url('./background.jpg') no-repeat center center/cover;
+  color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  color: white;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .header {
@@ -39,34 +43,35 @@ nav ul li a {
 }
 
 .hero-section {
-  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 .title {
-  font-size: 50px;
+  font-size: 60px;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
 .subtitle {
-  font-size: 18px;
-  margin-top: 10px;
+  font-size: 22px;
+  margin-bottom: 30px;
 }
 
+/* Buttons with tab-like space and center alignment */
 .buttons {
-  margin-top: 30px;
+  display: flex;
+  gap: 48px;              /* tab-like space */
+  margin-bottom: 40px;
+  justify-content: center; /* center horizontally */
+  transform: translateX(20px); /* slight right shift */
 }
 
+/* Keep original Tailwind button colors */
 .buttons button {
-  padding: 12px 25px;
   font-size: 18px;
-  background: white;
-  color: #1e3c72;
   border: none;
-  margin: 10px;
   border-radius: 5px;
+  cursor: pointer;
   transition: 0.3s;
-}
-
-.buttons button:hover {
-  background: #eeeeee;
 }

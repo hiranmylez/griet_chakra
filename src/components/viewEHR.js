@@ -1,12 +1,7 @@
-// src/components/viewEHR.js
+// src/components/ViewEHR.js
 import React, { useState, useEffect } from "react";
-import { storage, db, auth } from "../firebase/firebase"; // ✅ Correct path
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject
-} from "firebase/storage";
+import { auth } from "../firebase/firebase"; // Only auth needed now
+import { db } from "../firebase/firebase";
 import {
   collection,
   addDoc,
@@ -15,7 +10,7 @@ import {
   doc,
   query,
   where,
-  Timestamp
+  Timestamp,
 } from "firebase/firestore";
 
 const ViewEHR = () => {
@@ -31,33 +26,47 @@ const ViewEHR = () => {
 
   const handleUpload = async () => {
     if (!file || !user) {
-      alert("No file selected");
+      alert("No file selected or user not logged in");
       return;
     }
-    setLoading(true);
-    const storageRef = ref(storage, `ehr/${user.uid}/${file.name}`);
+  
+    const formData = new FormData();
+    formData.append("file", file);
+  
     try {
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-
-      await addDoc(collection(db, "ehr-records"), {
-        uid: user.uid,
-        name: file.name,
-        url: downloadURL,
-        description: fileDescription,
-        timestamp: Timestamp.now()
+      setLoading(true);
+  
+      const uploadResponse = await fetch("http://localhost:8080/niramaya_backend/php/upload.php", {
+        method: "POST",
+        body: formData,
       });
-
-      alert("File uploaded successfully!");
-      setFile(null);
-      setFileDescription("");
-      fetchRecords(); // refresh
+  
+      const uploadResult = await uploadResponse.json();
+  
+      if (uploadResponse.ok && uploadResult.filename) {
+        // ✅ Success: store record in Firestore
+        await addDoc(collection(db, "ehr-records"), {
+          uid: user.uid,
+          name: uploadResult.filename,
+          description: fileDescription,
+          timestamp: Timestamp.now(),
+        });
+  
+        alert("File uploaded successfully!");
+        setFile(null);
+        setFileDescription("");
+        fetchRecords();
+      } else {
+        alert("Upload failed: " + uploadResult.message || "Unknown error");
+      }
     } catch (error) {
       console.error("Upload error:", error);
       alert("Upload failed.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+  
 
   const fetchRecords = async () => {
     if (!user) return;
@@ -68,11 +77,12 @@ const ViewEHR = () => {
   };
 
   const handleDelete = async (record) => {
-    const fileRef = ref(storage, `ehr/${user.uid}/${record.name}`);
+    if (!window.confirm("Are you sure you want to delete this file?")) return;
+
     try {
-      await deleteObject(fileRef);
+      // Delete from Firestore (File remains in server unless we build PHP delete separately)
       await deleteDoc(doc(db, "ehr-records", record.id));
-      alert("File deleted.");
+      alert("File record deleted.");
       fetchRecords();
     } catch (error) {
       console.error("Delete error:", error);
@@ -86,7 +96,8 @@ const ViewEHR = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>📁 View & Upload EHR Records</h2>
+      <h2 style={{ color: "#1e3c72" }}>📁 View & Upload EHR Records</h2>
+
       <input type="file" onChange={handleFileChange} />
       <br />
       <input
@@ -97,19 +108,56 @@ const ViewEHR = () => {
         style={{ marginTop: "10px", marginBottom: "10px", width: "100%" }}
       />
       <br />
-      <button onClick={handleUpload} disabled={loading}>
+
+      <button
+        onClick={handleUpload}
+        disabled={loading}
+        style={{
+          backgroundColor: "#1e3c72",
+          color: "white",
+          padding: "10px 20px",
+          borderRadius: "5px",
+          border: "none",
+          cursor: "pointer",
+          marginBottom: "20px",
+        }}
+      >
         {loading ? "Uploading..." : "Upload"}
       </button>
+
       <hr />
-      <h3>Uploaded Records:</h3>
+
+      <h3 style={{ color: "#1e3c72" }}>Uploaded Records:</h3>
       <ul>
         {records.map((record) => (
-          <li key={record.id}>
-            <a href={record.url} target="_blank" rel="noreferrer">
+          <li key={record.id} style={{ marginBottom: "10px" }}>
+            <a
+              href={`http://localhost:8080/niramaya_backend/uploads/${encodeURIComponent(record.name)}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: "#0044cc", textDecoration: "underline" }}
+            >
               {record.name}
             </a>
-            {record.description && <span> - {record.description}</span>}
-            <button onClick={() => handleDelete(record)} style={{ marginLeft: "10px" }}>
+
+            {record.description && (
+              <span style={{ marginLeft: "10px", color: "gray" }}>
+                - {record.description}
+              </span>
+            )}
+
+            <button
+              onClick={() => handleDelete(record)}
+              style={{
+                backgroundColor: "#e74c3c",
+                color: "white",
+                border: "none",
+                padding: "5px 10px",
+                marginLeft: "20px",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
               🗑️ Delete
             </button>
           </li>

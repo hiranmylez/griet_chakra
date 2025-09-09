@@ -9,6 +9,8 @@ import PatientDashboard from "./components/PatientDashboard";
 import StaffDashboard from "./components/StaffDashboard";
 import Signup from "./components/Signup";
 import ViewEHR from "./components/viewEHR"; // ✅ Correct import
+import HealthInsights from "./components/HealthInsights"; // ✅ New page
+import HealthDetail from "./components/HealthDetail";     // ✅ Detailed analysis page
 
 function App() {
   return (
@@ -21,6 +23,10 @@ function App() {
       <Route path="/patient-dashboard" element={<PatientDashboard />} />
       <Route path="/staff-dashboard" element={<StaffDashboard />} />
       <Route path="/dashboard/view-ehr" element={<ViewEHR />} />
+      
+      {/* New Health Insights Routes */}
+      <Route path="/health-insights" element={<HealthInsights />} />
+      <Route path="/health-detail" element={<HealthDetail />} />
     </Routes>
   );
 }
