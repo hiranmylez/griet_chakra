@@ -1,0 +1,77 @@
+.new-landing-container {
+  height: 100vh;
+  width: 100vw;
+  background: url('./background.jpg') no-repeat center center/cover;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 50px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+}
+
+nav ul li {
+  margin-left: 20px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+}
+
+.hero-section {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 60px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 22px;
+  margin-bottom: 30px;
+}
+
+/* Buttons with tab-like space and center alignment */
+.buttons {
+  display: flex;
+  gap: 48px;              /* tab-like space */
+  margin-bottom: 40px;
+  justify-content: center; /* center horizontally */
+  transform: translateX(20px); /* slight right shift */
+}
+
+/* Keep original Tailwind button colors */
+.buttons button {
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
