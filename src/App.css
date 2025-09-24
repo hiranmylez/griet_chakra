@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -21,6 +22,8 @@
 
 @keyframes logo-spin {
 =======
+=======
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
 .App {
   text-align: center;
 }
@@ -52,6 +55,9 @@
 }
 
 @keyframes App-logo-spin {
+<<<<<<< HEAD
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
+=======
 >>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
   from {
     transform: rotate(0deg);
@@ -60,6 +66,7 @@
     transform: rotate(360deg);
   }
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 @media (prefers-reduced-motion: no-preference) {
@@ -75,5 +82,7 @@
 .read-the-docs {
   color: #888;
 }
+=======
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
 =======
 >>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf

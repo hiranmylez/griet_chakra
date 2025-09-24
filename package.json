@@ -1,5 +1,6 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   "name": "niramaya_landing",
   "private": true,
   "version": "0.0.0",
@@ -30,6 +31,8 @@
     "tailwindcss": "^4.1.13",
     "vite": "^7.1.7"
 =======
+=======
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
   "name": "niramaya-frontend",
   "version": "0.1.0",
   "private": true,
@@ -70,6 +73,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+<<<<<<< HEAD
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
+=======
 >>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
   }
 }
