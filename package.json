@@ -1,5 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "niramaya_auth",
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+  "name": "niramaya_landing",
+>>>>>>> 9e0be274d5ef06213a01bc0833ecc657c174d352
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -16,6 +22,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+<<<<<<< HEAD
+=======
+    "@tailwindcss/postcss": "^4.1.13",
+>>>>>>> 9e0be274d5ef06213a01bc0833ecc657c174d352
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.3",
@@ -27,5 +37,55 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "vite": "^7.1.7"
+<<<<<<< HEAD
+=======
+=======
+=======
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
+  "name": "niramaya-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "file-saver": "^2.0.5",
+    "firebase": "^11.6.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^3.2.0",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+<<<<<<< HEAD
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
+=======
+>>>>>>> 0dd23da3a58968f6dcf95afc566645325c8b97cf
+>>>>>>> 9e0be274d5ef06213a01bc0833ecc657c174d352
   }
 }

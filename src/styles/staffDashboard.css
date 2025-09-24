@@ -1,0 +1,43 @@
+body {
+  background-color: #e0f7fa !important;
+}
+
+.staff-dashboard-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.staff-sidebar {
+  width: 250px;
+  background-color: #1e3c72;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.staff-sidebar button {
+  width: 100%;
+  padding: 10px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  font-size: 16px;
+  text-align: left;
+  border-radius: 5px;
+}
+
+.staff-sidebar button:hover {
+  background-color: #2a80b9;
+}
+
+.staff-main-content {
+  flex: 1;
+  padding: 20px;
+  background: #f9f9f9;
+  color: #1e3c72;
+  height: 100vh;
+  overflow-y: auto;
+}
